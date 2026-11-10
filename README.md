@@ -97,6 +97,19 @@ Double-click **`Build Deal Sheet.cmd`** (or run `py deal_sheet.py --open`) for a
 
 Terms and risk flags are pattern-matched from filing text, so every row links its source filing. Non-SEC targets (UK, ASX, HKEX) are not priced here: they appear on the dashboard's hard-catalyst list for you to price in the calculator.
 
+### Daily report (Event Monitor layout)
+
+`py daily_report.py` runs the public-source scan and the deal sheet, applies the [screening standards](#screening-standards), and writes `reports\daily\special_situations_monitor_YYYY-MM-DD.xlsx` in the Event Monitor's layout:
+
+- **Funnel**: names left after each standard, counts by catalyst type, and the main screen-out reasons.
+- **Ideas**: deals clearing the 25% risk-adjusted hurdle. Columns are grouped under the same bands: price, event, analyst values (base = deal value, bull = deal value plus any CVR maximum, bear = break price), returns (live formulas), catalyst, and thesis and risk (kill criteria, what could be wrong, quoted filing facts, labeled estimates, next diligence steps).
+- **Assessed**: every priced deal (clears, verify, below hurdle, screened), then the unpriced hard catalysts marked `INSUFFICIENT_DATA`.
+- **Events**, **Pipeline** (hard catalysts with no ticker yet, such as UK offer periods by ISIN), **Rejected** (every screen-out, with stage and reason) and **Config** (the model parameters).
+
+`--email` sends the workbook, with a short summary in the message body, through the desktop Outlook on this PC (`send_outlook_mail.ps1`). With no address it goes to the Outlook account's own address. `--email-only WORKBOOK` resends an existing file. The day's deal sheet is saved separately in `reports\daily\deal_sheets\`, so a deal sheet left open in Excel does not stop the run.
+
+`run_daily_report.cmd` is the Task Scheduler entry point and logs to `reports\daily\daily_log.txt`. The **Special Situations Daily Report** task runs it with `--email` on weekdays at 6:30am. It runs only while you are signed in, because Outlook must be available, and catches up when the PC wakes if a run was missed.
+
 Close the terminal running option 2 to stop the local dashboard. `IBKR_DASHBOARD_PORT` optionally changes its default local web port (`8765`). Refresh is manual by design.
 
 Optional environment settings (defaults shown):
